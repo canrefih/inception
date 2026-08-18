@@ -1,0 +1,135 @@
+version: '3.8'
+
+services:
+  mariadb:
+    build:
+      context: ./requirements/mariadb
+    image: mariadb:inception
+    container_name: mariadb
+    restart: on-failure
+    env_file:
+      - .env
+    secrets:
+      - db_root_password
+      - db_password
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - inception
+
+  wordpress:
+    build:
+      context: ./requirements/wordpress
+    image: wordpress:inception
+    container_name: wordpress
+    restart: on-failure
+    env_file:
+      - .env
+    secrets:
+      - db_password
+      - wp_admin_password
+    volumes:
+      - wordpress_data:/var/www/html
+    depends_on:
+      - mariadb
+      - redis
+    networks:
+      - inception
+
+  nginx:
+    build:
+      context: ./requirements/nginx
+    image: nginx:inception
+    container_name: nginx
+    restart: on-failure
+    depends_on:
+      - wordpress
+    ports:
+      - "443:443"
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./requirements/website/html:/var/www/static:ro
+    networks:
+      - inception
+
+  redis:
+    build:
+      context: ./requirements/redis
+    image: redis:inception
+    container_name: redis
+    restart: on-failure
+    networks:
+      - inception
+      
+  ftp:
+    build:
+      context: ./requirements/ftp
+    image: ftp:inception
+    container_name: ftp
+    restart: on-failure
+    env_file:
+      - .env
+    secrets:
+      - ftp_password
+    volumes:
+      - wordpress_data:/home/ftpuser/wordpress
+    ports:
+      - "21:21"
+      - "50000-50100:50000-50100"
+    networks:
+      - inception
+      
+  adminer:
+    build:
+      context: ./requirements/adminer
+    image: adminer:inception
+    container_name: adminer
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    networks:
+      - inception
+      
+  cadvisor:
+    build:
+      context: ./requirements/cadvisor
+    image: cadvisor:inception
+    container_name: cadvisor
+    restart: on-failure
+    ports:
+      - "8081:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+    networks:
+      - inception
+
+secrets:
+  db_root_password:
+    file: ../secrets/db_root_password.txt
+  db_password:
+    file: ../secrets/db_password.txt
+  wp_admin_password:
+    file: ../secrets/wp_admin_password.txt
+  ftp_password:
+    file: ../secrets/ftp_password.txt
+
+volumes:
+  db_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/recan/data/db
+  wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/recan/data/wordpress
+
+networks:
+  inception:
+    driver: bridge

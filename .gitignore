@@ -1,0 +1,14 @@
+# Secrets
+secrets/*.txt
+srcs/.env
+
+# OS / editor
+.DS_Store
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Runtime / generated data
+data/
