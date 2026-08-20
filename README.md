@@ -1306,28 +1306,6 @@ The project demonstrates practical knowledge of:
 - Adminer (database administration)
 - cAdvisor (monitoring and metrics)
 
-**Development Languages:**
-
-- Python
-- C
-- C++
-- Java
-- C#
-- JavaScript
-- HTML
-- CSS
-- PHP
-- Bash
-
-**AI and Automation:**
-
-- Machine Learning
-- Natural Language Processing (NLP)
-- Large Language Models (LLMs)
-- Computer Vision
-- Robotic Process Automation (RPA)
-- Automation platforms (UiPath, Automation Anywhere, Robusta, n8n)
-
 ---
 
 ## Resources
